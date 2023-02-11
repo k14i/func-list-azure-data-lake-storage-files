@@ -42,7 +42,7 @@ class AzureDataLakeStorageGen2Helper(object):
                 self.folder_name = ""
             elif not folder_name and os.environ.get("AzureStorageAccountFolderName"):
                 self.folder_name = os.environ["AzureStorageAccountFolderName"]
-            else:
+            elif folder_name:
                 self.folder_name = folder_name
         except Exception as e:
             raise Exception(e)
