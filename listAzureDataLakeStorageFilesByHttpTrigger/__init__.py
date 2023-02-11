@@ -26,9 +26,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             modified_since = datetime.strptime(b64decode(modified_since).decode('utf-8'), "%Y-%m-%dT%H:%M:%SZ")
 
         if connection_string:
-            adls2_helper = AzureDataLakeStorageGen2Helper(connection_string=connection_string, folder_name=folder_name)
+            adls2_helper = AzureDataLakeStorageGen2Helper(connection_string=connection_string, container_name=container_name, folder_name=folder_name)
         else:
-            adls2_helper = AzureDataLakeStorageGen2Helper(account_name=account_name, account_key=account_key, file_system_name=container_name, folder_name=folder_name)
+            adls2_helper = AzureDataLakeStorageGen2Helper(account_name=account_name, account_key=account_key, container_name=container_name, folder_name=folder_name)
+
         if extension and not modified_since:
             files = adls2_helper.list_files_in_json(
                 list_func=adls2_helper.list_files_by_extension,
@@ -39,7 +40,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 list_func=adls2_helper.list_files_by_last_modified,
                 modified_since=modified_since
             )
-        if extension and modified_since:
+        elif extension and modified_since:
             files = adls2_helper.list_files_in_json(
                 list_func=adls2_helper.list_files_by_last_modified_and_extension,
                 modified_since=modified_since,
@@ -47,6 +48,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             )
         else:
             files = adls2_helper.list_files_in_json()
+
         logging.info(f"req.url = {req.url}")
         logging.info(f"req.headers = {[x for x in req.headers]}")
         logging.info(f"req.params = {req.params}")

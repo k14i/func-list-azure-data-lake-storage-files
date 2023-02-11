@@ -8,7 +8,7 @@ from azure.storage.filedatalake import DataLakeServiceClient
 
 
 class AzureDataLakeStorageGen2Helper(object):
-    def __init__(self, connection_string=None, account_name=None, account_key=None, file_system_name=None, folder_name=None):
+    def __init__(self, connection_string=None, account_name=None, account_key=None, container_name=None, folder_name=None):
         if not connection_string:
             connection_string = os.environ.get("AzureStorageConnectionString")
         
@@ -16,22 +16,32 @@ class AzureDataLakeStorageGen2Helper(object):
             if connection_string:
                 self.data_lake_service_client = DataLakeServiceClient.from_connection_string(conn_str=connection_string)
             else:
-                if not account_name:
+                if not account_name and not os.environ.get("AzureStorageAccountName"):
+                    raise Exception("Account name is not specified both in the query parameters and in the environment variables.")
+                elif not account_name:
                     account_name = os.environ["AzureStorageAccountName"]
-                if not account_key:
+
+                if not account_key and not os.environ.get("AzureStorageAccountKey"):
+                    raise Exception("Account key is not specified both in the query parameters and in the environment variables.")
+                elif not account_key:
                     account_key = os.environ["AzureStorageAccountKey"]
+
                 self.data_lake_service_client = DataLakeServiceClient(
                     account_url="{}://{}.dfs.core.windows.net".format("https", account_name),
                     credential=account_key
                 )
-            if not file_system_name:
-                file_system_name = os.environ["AzureStorageAccountContainerName"]
-            self.file_system_client = self.data_lake_service_client.get_file_system_client(file_system=file_system_name)
 
-            if (not folder_name) and (os.environ.get("AzureStorageAccountFolderName")):
-                self.folder_name = os.environ["AzureStorageAccountFolderName"]
-            elif not folder_name:
+            if not container_name and not os.environ.get("AzureStorageAccountContainerName"):
+                raise Exception("Container name is not specified both in the query parameters and in the environment variables.")
+            elif not container_name:
+                container_name = os.environ["AzureStorageAccountContainerName"]
+
+            self.file_system_client = self.data_lake_service_client.get_file_system_client(file_system=container_name)
+
+            if not folder_name and not os.environ.get("AzureStorageAccountFolderName"):
                 self.folder_name = ""
+            elif not folder_name and os.environ.get("AzureStorageAccountFolderName"):
+                self.folder_name = os.environ["AzureStorageAccountFolderName"]
             else:
                 self.folder_name = folder_name
         except Exception as e:
