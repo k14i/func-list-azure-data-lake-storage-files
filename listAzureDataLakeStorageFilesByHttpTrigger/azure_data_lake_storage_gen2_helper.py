@@ -72,6 +72,15 @@ class AzureDataLakeStorageGen2Helper(object):
     def filter_files_list_by_last_modified_and_extension(self, files_list: list, modified_since: datetime, extension: str, *args, **kwargs) -> list:
         return [x for x in files_list if x.last_modified >= modified_since and x.name.endswith(extension)]
 
+    def add_container_name(self, files_list: list, *args, **kwargs) -> list:
+        for i in range(len(files_list)):
+            try:
+                files_list[i]["container_name"] = self.file_system_client.get_file_system_properties().name
+            except Exception as e:
+                print(e)
+                raise Exception(f"{e}: Container name is not set in self.file_system_client.file_system_name.")
+        return files_list
+
     def _add_item_from_name(self, files_list, new_item_name, source_item_name, regex) -> list:
         for i in range(len(files_list)):
             try:
@@ -83,7 +92,7 @@ class AzureDataLakeStorageGen2Helper(object):
     def add_file_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
         return self._add_item_from_name(files_list, "file_name", "name", r'.+\/(.+)')
 
-    def add_directory_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
+    def add_directory_path_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
         return self._add_item_from_name(files_list, "directory_path", "name", r'(.+)\/.+')
 
     def add_file_extension_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:

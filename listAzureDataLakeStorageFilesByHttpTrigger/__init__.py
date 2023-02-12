@@ -31,8 +31,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             adls2_helper = AzureDataLakeStorageGen2Helper(account_name=account_name, account_key=account_key, container_name=container_name, folder_name=folder_name)
 
         filter_functions = [
+            adls2_helper.add_container_name,
             adls2_helper.add_file_name_to_each_list_item,
-            adls2_helper.add_directory_name_to_each_list_item,
+            adls2_helper.add_directory_path_to_each_list_item,
             adls2_helper.add_file_extension_to_each_list_item
         ]
 
