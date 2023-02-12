@@ -8,18 +8,19 @@ import azure.functions as func
 from .azure_data_lake_storage_gen2_helper import AzureDataLakeStorageGen2Helper
 
 
-RE_BASE64_STRING = re.compile(r'^[A-Za-z0-9+/]+={0,2}$')
-RE_URLENCODED_STRING = re.compile(r'(%[0-9a-fA-F]{2}|[^<>\'" %])+')
-
+# NOTE: Azure Functions activity of Azure Data Factory Pipeline automatically add quotes to string parameters.
+#       For example, parameter foo becomes "foo" (not foo).
+#       So, we need to remove them.
+def _remove_quotes(param: str) -> str:
+    if re.match(re.compile(r'^[\'\"].*[\'\"]$'), param):
+        param = param[1:-1]
+    return param
 
 def _decode_request_params(param) -> str:
-    if re.match(RE_BASE64_STRING, param) and b64encode(b64decode(param)) == param.encode('utf-8'):
-        logging.debug(f"base64 decode {param}")
+    if re.match(re.compile(r'^[A-Za-z0-9+/]+={0,2}$'), param) and b64encode(b64decode(param)) == param.encode('utf-8'):
         param = b64decode(param).decode('utf-8')
-    if re.match(RE_URLENCODED_STRING, param) and quote(unquote(param)) == param:
-        logging.debug(f"url decode {param}")
+    if re.match(re.compile(r'(%[0-9a-fA-F]{2}|[^<>\'" %])+'), param) and quote(unquote(param)) == param:
         param = unquote(param)
-    logging.debug(f"decoded_param = {param}")
     return param
 
 
@@ -28,19 +29,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         if connection_string := req.params.get('connection_string'):
-            connection_string = _decode_request_params(connection_string)
+            connection_string = _decode_request_params(_remove_quotes(connection_string))
         if account_name := req.params.get('account_name'):
-            account_name = _decode_request_params(account_name)
+            account_name = _decode_request_params(_remove_quotes(account_name))
         if account_key := req.params.get('account_key'):
-            account_key = _decode_request_params(account_key)
+            account_key = _decode_request_params(_remove_quotes(account_key))
         if container_name := req.params.get('container_name'):
-            container_name = _decode_request_params(container_name)
+            container_name = _decode_request_params(_remove_quotes(container_name))
         if folder_name := req.params.get('folder_name'):
-            folder_name = _decode_request_params(folder_name)
+            folder_name = _decode_request_params(_remove_quotes(folder_name))
         if extension := req.params.get('extension'):
-            extension = _decode_request_params(extension)
+            extension = _decode_request_params(_remove_quotes(extension))
         if modified_since := req.params.get('modified_since'):
-            modified_since = datetime.strptime(_decode_request_params(modified_since), "%Y-%m-%dT%H:%M:%SZ")
+            modified_since = datetime.strptime(_decode_request_params(_remove_quotes(modified_since)), "%Y-%m-%dT%H:%M:%SZ")
 
         if connection_string:
             adls2_helper = AzureDataLakeStorageGen2Helper(
