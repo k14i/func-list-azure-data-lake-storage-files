@@ -1,9 +1,26 @@
 import logging
-from base64 import b64decode
+from base64 import b64decode, b64encode
+from urllib.parse import unquote, quote
+import re
 from datetime import datetime
 
 import azure.functions as func
 from .azure_data_lake_storage_gen2_helper import AzureDataLakeStorageGen2Helper
+
+
+RE_BASE64_STRING = re.compile(r'^[A-Za-z0-9+/]+={0,2}$')
+RE_URLENCODED_STRING = re.compile(r'(%[0-9a-fA-F]{2}|[^<>\'" %])+')
+
+
+def _decode_request_params(param) -> str:
+    if re.match(RE_BASE64_STRING, param) and b64encode(b64decode(param)) == param.encode('utf-8'):
+        logging.debug(f"base64 decode {param}")
+        param = b64decode(param).decode('utf-8')
+    if re.match(RE_URLENCODED_STRING, param) and quote(unquote(param)) == param:
+        logging.debug(f"url decode {param}")
+        param = unquote(param)
+    logging.debug(f"decoded_param = {param}")
+    return param
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -11,24 +28,33 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         if connection_string := req.params.get('connection_string'):
-            connection_string = b64decode(connection_string).decode('utf-8')
+            connection_string = _decode_request_params(connection_string)
         if account_name := req.params.get('account_name'):
-            account_name = b64decode(account_name).decode('utf-8')
+            account_name = _decode_request_params(account_name)
         if account_key := req.params.get('account_key'):
-            account_key = b64decode(account_key).decode('utf-8')
+            account_key = _decode_request_params(account_key)
         if container_name := req.params.get('container_name'):
-            container_name = b64decode(container_name).decode('utf-8')
+            container_name = _decode_request_params(container_name)
         if folder_name := req.params.get('folder_name'):
-            folder_name = b64decode(folder_name).decode('utf-8')
+            folder_name = _decode_request_params(folder_name)
         if extension := req.params.get('extension'):
-            extension = b64decode(extension).decode('utf-8')
+            extension = _decode_request_params(extension)
         if modified_since := req.params.get('modified_since'):
-            modified_since = datetime.strptime(b64decode(modified_since).decode('utf-8'), "%Y-%m-%dT%H:%M:%SZ")
+            modified_since = datetime.strptime(_decode_request_params(modified_since), "%Y-%m-%dT%H:%M:%SZ")
 
         if connection_string:
-            adls2_helper = AzureDataLakeStorageGen2Helper(connection_string=connection_string, container_name=container_name, folder_name=folder_name)
+            adls2_helper = AzureDataLakeStorageGen2Helper(
+                connection_string=connection_string,
+                container_name=container_name,
+                folder_name=folder_name
+            )
         else:
-            adls2_helper = AzureDataLakeStorageGen2Helper(account_name=account_name, account_key=account_key, container_name=container_name, folder_name=folder_name)
+            adls2_helper = AzureDataLakeStorageGen2Helper(
+                account_name=account_name,
+                account_key=account_key,
+                container_name=container_name,
+                folder_name=folder_name
+            )
 
         filter_functions = [
             adls2_helper.add_container_name,
