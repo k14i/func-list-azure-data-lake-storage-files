@@ -86,6 +86,9 @@ class AzureDataLakeStorageGen2Helper(object):
     def add_directory_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
         return self._add_item_from_name(files_list, "directory_path", "name", r'(.+)\/.+')
 
+    def add_file_extension_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
+        return self._add_item_from_name(files_list, "file_extension", "name", r'.+(\..+)$')
+
     def list_files_in_json(self, list_func=None, filter_funcs=[], *args, **kwargs) -> str:
         if not list_func:
             list_func = self.list_files

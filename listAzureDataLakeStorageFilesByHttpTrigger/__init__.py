@@ -33,6 +33,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         filter_functions = [
             adls2_helper.add_file_name_to_each_list_item,
             adls2_helper.add_directory_name_to_each_list_item,
+            adls2_helper.add_file_extension_to_each_list_item
         ]
 
         if extension and not modified_since:
