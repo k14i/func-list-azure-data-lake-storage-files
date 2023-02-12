@@ -72,15 +72,19 @@ class AzureDataLakeStorageGen2Helper(object):
     def filter_files_list_by_last_modified_and_extension(self, files_list: list, modified_since: datetime, extension: str, *args, **kwargs) -> list:
         return [x for x in files_list if x.last_modified >= modified_since and x.name.endswith(extension)]
 
-    def add_file_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
+    def _add_item_from_name(self, files_list, new_item_name, source_item_name, regex) -> list:
         for i in range(len(files_list)):
-            files_list[i].file_name = re.findall(r'.+\/(.+)', files_list[i].name)[0]
+            try:
+                files_list[i][new_item_name] = re.findall(regex, files_list[i][source_item_name])[0]
+            except Exception:
+                files_list[i][new_item_name] = None
         return files_list
 
+    def add_file_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
+        return self._add_item_from_name(files_list, "file_name", "name", r'.+\/(.+)')
+
     def add_directory_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
-        for i in range(len(files_list)):
-            files_list[i].directory_name = re.findall(r'(.+)\/.+', files_list[i].name)[0]
-        return files_list
+        return self._add_item_from_name(files_list, "directory_path", "name", r'(.+)\/.+')
 
     def list_files_in_json(self, list_func=None, filter_funcs=[], *args, **kwargs) -> str:
         if not list_func:
