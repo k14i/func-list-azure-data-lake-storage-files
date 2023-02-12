@@ -30,24 +30,32 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         else:
             adls2_helper = AzureDataLakeStorageGen2Helper(account_name=account_name, account_key=account_key, container_name=container_name, folder_name=folder_name)
 
+        filter_functions = [
+            adls2_helper.add_file_name_to_each_list_item,
+            adls2_helper.add_directory_name_to_each_list_item,
+        ]
+
         if extension and not modified_since:
             files = adls2_helper.list_files_in_json(
                 list_func=adls2_helper.list_files_by_extension,
+                filter_funcs=filter_functions,
                 extension=extension
             )
         elif not extension and modified_since:
             files = adls2_helper.list_files_in_json(
                 list_func=adls2_helper.list_files_by_last_modified,
+                filter_funcs=filter_functions,
                 modified_since=modified_since
             )
         elif extension and modified_since:
             files = adls2_helper.list_files_in_json(
                 list_func=adls2_helper.list_files_by_last_modified_and_extension,
+                filter_funcs=filter_functions,
                 modified_since=modified_since,
                 extension=extension
             )
         else:
-            files = adls2_helper.list_files_in_json()
+            files = adls2_helper.list_files_in_json(filter_funcs=filter_functions)
 
         logging.info(f"req.url = {req.url}")
         logging.info(f"req.headers = {[x for x in req.headers]}")

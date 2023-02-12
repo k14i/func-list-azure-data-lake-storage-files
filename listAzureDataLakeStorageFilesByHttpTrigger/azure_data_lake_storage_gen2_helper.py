@@ -2,6 +2,7 @@
 
 import os
 import json
+import re
 from datetime import datetime
 
 from azure.storage.filedatalake import DataLakeServiceClient
@@ -70,6 +71,16 @@ class AzureDataLakeStorageGen2Helper(object):
 
     def filter_files_list_by_last_modified_and_extension(self, files_list: list, modified_since: datetime, extension: str, *args, **kwargs) -> list:
         return [x for x in files_list if x.last_modified >= modified_since and x.name.endswith(extension)]
+
+    def add_file_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
+        for i in range(len(files_list)):
+            files_list[i].file_name = re.findall(r'.+\/(.+)', files_list[i].name)[0]
+        return files_list
+
+    def add_directory_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
+        for i in range(len(files_list)):
+            files_list[i].directory_name = re.findall(r'(.+)\/.+', files_list[i].name)[0]
+        return files_list
 
     def list_files_in_json(self, list_func=None, filter_funcs=[], *args, **kwargs) -> str:
         if not list_func:
