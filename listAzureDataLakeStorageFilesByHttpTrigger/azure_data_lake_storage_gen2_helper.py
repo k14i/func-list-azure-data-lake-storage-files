@@ -90,10 +90,10 @@ class AzureDataLakeStorageGen2Helper(object):
         return files_list
 
     def add_file_name_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
-        return self._add_item_from_name(files_list, "file_name", "name", r'.+\/(.+)')
+        return self._add_item_from_name(files_list, "file_name", "name", r'([^/]+)$')
 
     def add_directory_path_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
-        return self._add_item_from_name(files_list, "directory_path", "name", r'(.+)\/.+')
+        return self._add_item_from_name(files_list, "directory_path", "name", r'^(.+)\/[^/]+')
 
     def add_file_extension_to_each_list_item(self, files_list: list, *args, **kwargs) -> list:
         return self._add_item_from_name(files_list, "file_extension", "name", r'.+(\..+)$')
