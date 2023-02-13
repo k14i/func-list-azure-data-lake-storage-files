@@ -7,6 +7,6 @@ class AzureDataFactoryAzureFunctionsActivityHelper(object):
     #       So, we need to remove them.
     @staticmethod
     def remove_quotes(param: str) -> str:
-        if re.match(re.compile(r'^[\'\"].*[\'\"]$'), param):
+        while re.match(re.compile(r'^[\'\"].*[\'\"]$'), param):
             param = param[1:-1]
         return param
