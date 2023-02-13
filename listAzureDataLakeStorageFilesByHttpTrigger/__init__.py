@@ -1,55 +1,36 @@
 import logging
-from base64 import b64decode, b64encode
-from urllib.parse import unquote, quote
 import re
 from datetime import datetime
 
 import azure.functions as func
+
+from .azure_data_factory_azure_functions_activity_helper import AzureDataFactoryAzureFunctionsActivityHelper
 from .azure_data_lake_storage_gen2_helper import AzureDataLakeStorageGen2Helper
-
-
-# NOTE: Azure Functions activity of Azure Data Factory Pipeline automatically add quotes to string parameters.
-#       For example, parameter foo becomes "foo" (not foo).
-#       So, we need to remove them.
-def _remove_quotes(param: str) -> str:
-    if re.match(re.compile(r'^[\'\"].*[\'\"]$'), param):
-        param = param[1:-1]
-    return param
-
-def _decode_request_params(param) -> str:
-    try:
-        if re.match(re.compile(r'^[A-Za-z0-9+/]+={0,2}$'), param) and b64encode(b64decode(param)) == param.encode('utf-8'):
-            param = b64decode(param).decode('utf-8')
-    except Exception:
-        pass
-
-    try:
-        if re.match(re.compile(r'(%[0-9a-fA-F]{2}|[^<>\'" %])+'), param) and quote(unquote(param)) == param:
-            param = unquote(param)
-    except Exception:
-        pass
-
-    return param
+from .azure_functions_http_trigger_helper import AzureFunctionsHttpTriggerHelper
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info(f'Started listAzureDataLakeStorageFilesByHttpTrigger function at {datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%SZ")}')
 
+    remove_quotes = AzureDataFactoryAzureFunctionsActivityHelper.remove_quotes
+    decode_request_params = AzureFunctionsHttpTriggerHelper.decode_request_params
+
     try:
         if connection_string := req.params.get('connection_string'):
-            connection_string = _decode_request_params(_remove_quotes(connection_string))
+            connection_string = decode_request_params(remove_quotes(connection_string))
         if account_name := req.params.get('account_name'):
-            account_name = _decode_request_params(_remove_quotes(account_name))
+            account_name = decode_request_params(remove_quotes(account_name))
         if account_key := req.params.get('account_key'):
-            account_key = _decode_request_params(_remove_quotes(account_key))
+            account_key = decode_request_params(remove_quotes(account_key))
         if container_name := req.params.get('container_name'):
-            container_name = _decode_request_params(_remove_quotes(container_name))
+            container_name = decode_request_params(remove_quotes(container_name))
         if folder_name := req.params.get('folder_name'):
-            folder_name = _decode_request_params(_remove_quotes(folder_name))
+            folder_name = decode_request_params(remove_quotes(folder_name))
         if extension := req.params.get('extension'):
-            extension = _decode_request_params(_remove_quotes(extension))
+            extension = decode_request_params(remove_quotes(extension))
+            # TODO: support extensions and will be comma separated string
         if modified_since := req.params.get('modified_since'):
-            modified_since = _decode_request_params(_remove_quotes(modified_since))
+            modified_since = decode_request_params(remove_quotes(modified_since))
             if re.match(re.compile(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'), modified_since):
                 format = "%Y-%m-%dT%H:%M:%S.%fZ"
             elif re.match(re.compile(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'), modified_since):
@@ -70,13 +51,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 container_name=container_name,
                 folder_name=folder_name
             )
-        else:
+        elif account_name and account_key:
             adls2_helper = AzureDataLakeStorageGen2Helper(
                 account_name=account_name,
                 account_key=account_key,
                 container_name=container_name,
                 folder_name=folder_name
             )
+        else:
+            raise ValueError("connection_string or account_name and account_key parameters are required.")
 
         filter_functions = [
             adls2_helper.add_container_name,
