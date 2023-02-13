@@ -49,6 +49,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if extension := req.params.get('extension'):
             extension = _decode_request_params(_remove_quotes(extension))
         if modified_since := req.params.get('modified_since'):
+            modified_since = _decode_request_params(_remove_quotes(modified_since))
             if re.match(re.compile(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'), modified_since):
                 format = "%Y-%m-%dT%H:%M:%S.%fZ"
             elif re.match(re.compile(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'), modified_since):
@@ -61,7 +62,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 format = "%Y"
             else:
                 raise ValueError(f"modified_since parameter is invalid. modified_since = {modified_since}")
-            modified_since = datetime.strptime(_decode_request_params(_remove_quotes(modified_since)), format)
+            modified_since = datetime.strptime(modified_since, format)
 
         if connection_string:
             adls2_helper = AzureDataLakeStorageGen2Helper(
