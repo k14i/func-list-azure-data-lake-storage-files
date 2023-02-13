@@ -28,7 +28,7 @@ def _decode_request_params(param) -> str:
             param = unquote(param)
     except Exception:
         pass
-    
+
     return param
 
 
@@ -49,7 +49,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if extension := req.params.get('extension'):
             extension = _decode_request_params(_remove_quotes(extension))
         if modified_since := req.params.get('modified_since'):
-            modified_since = datetime.strptime(_decode_request_params(_remove_quotes(modified_since)), "%Y-%m-%dT%H:%M:%SZ")
+            if re.match(re.compile(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'), modified_since):
+                format = "%Y-%m-%dT%H:%M:%S.%fZ"
+            elif re.match(re.compile(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'), modified_since):
+                format = "%Y-%m-%dT%H:%M:%SZ"
+            elif re.match(re.compile(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$'), modified_since):
+                format = "%Y-%m-%d"
+            elif re.match(re.compile(r'^[0-9]{4}-[0-9]{2}$'), modified_since):
+                format = "%Y-%m"
+            elif re.match(re.compile(r'^[0-9]{4}$'), modified_since):
+                format = "%Y"
+            else:
+                raise ValueError(f"modified_since parameter is invalid. modified_since = {modified_since}")
+            modified_since = datetime.strptime(_decode_request_params(_remove_quotes(modified_since)), format)
 
         if connection_string:
             adls2_helper = AzureDataLakeStorageGen2Helper(
