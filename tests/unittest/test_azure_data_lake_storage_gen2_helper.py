@@ -285,24 +285,6 @@ class TestAzureDataLakeStorageGen2Helper(unittest.TestCase):
 
 
     @patch(data_lake_service_client)
-    def test_filter_files_list_by_extension(self, _):
-        # TODO: Implement this test
-        pass
-
-
-    @patch(data_lake_service_client)
-    def test_filter_files_list_by_last_modified(self, _):
-        # TODO: Implement this test
-        pass
-
-
-    @patch(data_lake_service_client)
-    def test_filter_files_list_by_last_modified_and_extension(self, _):
-        # TODO: Implement this test
-        pass
-
-
-    @patch(data_lake_service_client)
     def test__add_item_from_name(self, _):
         # TODO: Implement this test
         pass
