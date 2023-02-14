@@ -1,0 +1,194 @@
+### REST Client for Visual Studio Code
+### https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+### Other useful VS Code extensions:
+### - URL Encode: https://marketplace.visualstudio.com/items?itemName=flesler.url-encode
+### - vscode-base64: https://marketplace.visualstudio.com/items?itemName=adamhartford.vscode-base64
+### =============================================================
+
+@local_url = http://localhost:7071/api/listAzureDataLakeStorageFilesByHttpTrigger
+@remote_url = https://{{YOUR_FUNCSION_APP_NAME_HERE}}.azurewebsites.net/api/listazuredatalakestoragefilesbyhttptrigger
+
+@connection_string = 
+@account_name = 
+@account_key = 
+@container_name = 
+@modified_since = 2023-01-01T00:00:00Z
+@modified_since_future = 2100-01-01T00:00:00Z
+@modified_since_year_month_date = 2023-01-01
+@modified_since_year_month = 2023-01
+@modified_since_year = 2023
+@extension_csv = .csv
+@extension_json = .json
+
+@b64_connection_string = 
+@b64_account_name = 
+@b64_account_key = 
+@b64_container_name = 
+@b64_modified_since = MjAyMy0wMS0wMVQwMDowMDowMFo=
+@b64_modified_since_future = MjEwMC0wMS0wMVQwMDowMDowMFo=
+@b64_modified_since_year_month_date = MjAyMy0wMS0wMQ==
+@b64_modified_since_year_month = MjAyMy0wMQ==
+@b64_modified_since_year = MjAyMw==
+@b64_extension_csv = LmNzdg==
+@b64_extension_json = Lmpzb24=
+
+@urlencoded_connection_string = 
+@urlencoded_account_name = 
+@urlencoded_account_key = 
+@urlencoded_container_name = 
+@urlencoded_modified_since = 2023-01-01T00%3A00%3A00Z
+@urlencoded_modified_since_future = 2100-01-01T00%3A00%3A00Z
+@urlencoded_modified_since_year_month_date = 2023-01-01
+@urlencoded_modified_since_year_month = 2023-01
+@urlencoded_modified_since_year = 2023
+@urlencoded_extension_csv = .csv
+@urlencoded_extension_json = .json
+
+###
+# =============================================================
+# Base64 Encoded Requests
+# =============================================================
+
+###
+# ------------------------------------------------
+# Minimum request with connection string in base64
+# ------------------------------------------------
+GET {{local_url}}?connection_string={{b64_connection_string}}&container_name={{b64_container_name}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Minimum request with account name and key string in base64
+# ----------------------------------------------------------
+GET {{local_url}}?account_name={{b64_account_name}}&account_key={{b64_account_key}}&container_name={{b64_container_name}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing modified_since in base64
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{b64_connection_string}}&container_name={{b64_container_name}}&modified_since={{b64_modified_since}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing modified_since of future date in base64
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{b64_connection_string}}&container_name={{b64_container_name}}&modified_since={{b64_modified_since_future}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing .csv file extension in base64
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{b64_connection_string}}&container_name={{b64_container_name}}&extension={{b64_extension_csv}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing .json file extension_since in base64
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{b64_connection_string}}&container_name={{b64_container_name}}&extension={{b64_extension_json}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing modified_since and extension in base64
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{b64_connection_string}}&container_name={{b64_container_name}}&modified_since={{b64_modified_since}}&extension={{b64_extension_csv}} HTTP/1.1
+Content-Type: application/json
+
+
+###
+# =============================================================
+# URL Encoded Requests
+# =============================================================
+
+###
+# --------------------------------------------------
+# Minimum request with url encoded connection string
+# --------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ------------------------------------------------------------
+# Minimum request with url encoded account name and key string
+# ------------------------------------------------------------
+GET {{local_url}}?account_name={{urlencoded_account_name}}&account_key={{urlencoded_account_key}}&container_name={{urlencoded_container_name}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing url encoded modified_since
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&modified_since={{urlencoded_modified_since}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing url encoded .csv file extension
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&extension={{urlencoded_extension_csv}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing url encoded .json file extension
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&extension={{urlencoded_extension_json}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing url encoded modified_since and extension
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&modified_since={{urlencoded_modified_since}}&extension={{urlencoded_extension_csv}} HTTP/1.1
+Content-Type: application/json
+
+
+###
+# =============================================================
+# Requests with raw parameters
+# =============================================================
+
+###
+# ----------------------------------------------------------
+# Request specifiing raw modified_since
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&modified_since={{modified_since}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing raw modified_since in date format
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&modified_since={{modified_since_year_month_date}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing raw modified_since in year-month format
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&modified_since={{modified_since_year_month}} HTTP/1.1
+Content-Type: application/json
+
+###
+# ----------------------------------------------------------
+# Request specifiing raw modified_since in year
+# ----------------------------------------------------------
+GET {{local_url}}?connection_string={{urlencoded_connection_string}}&container_name={{urlencoded_container_name}}&modified_since={{modified_since_year}} HTTP/1.1
+Content-Type: application/json
+
+
+###
+# =============================================================
+# Remote requests
+# =============================================================
+
+###
+# ----------------------------------------------------------
+# Request specifiing url encoded modified_since and extension
+# ----------------------------------------------------------
+GET {{remote_url}}?connection_string={{urlencoded_connection_string}}&container_name={{container_name}}&modified_since={{modified_since_year_month_date}}&extension={{extension_csv}} HTTP/1.1
+Content-Type: application/json
