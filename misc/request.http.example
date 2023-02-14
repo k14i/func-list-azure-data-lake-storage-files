@@ -5,8 +5,9 @@
 ### - vscode-base64: https://marketplace.visualstudio.com/items?itemName=adamhartford.vscode-base64
 ### =============================================================
 
+@function_app_name = 
 @local_url = http://localhost:7071/api/listAzureDataLakeStorageFilesByHttpTrigger
-@remote_url = https://{{YOUR_FUNCSION_APP_NAME_HERE}}.azurewebsites.net/api/listazuredatalakestoragefilesbyhttptrigger
+@remote_url = https://{{function_app_name}}.azurewebsites.net/api/listazuredatalakestoragefilesbyhttptrigger
 
 @connection_string = 
 @account_name = 
